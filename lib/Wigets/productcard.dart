@@ -1,6 +1,8 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import '../Screens/FoodDetails.dart';  
-import '../Model_class/product.dart';              
+import '../Screens/FoodDetails.dart';
+import '../Model_class/product.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -27,12 +29,27 @@ class ProductCard extends StatelessWidget {
             top: 20,
             bottom: 60,
             child: Center(
-              child: Image.asset(
-                product.imageUrl,
-                width: 100,
-                height: 100,
-                fit: BoxFit.contain,
-              ),
+              child: product.imageUrl.startsWith('assets')
+                  ? Image.asset(
+                      product.imageUrl,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.contain,
+                    )
+                  : kIsWeb
+                      ? Image.network(
+                          product.imageUrl,
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.file(
+                          File(product.imageUrl),
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        ),
+              // --------------------------------------
             ),
           ),
           Positioned(
@@ -61,14 +78,15 @@ class ProductCard extends StatelessWidget {
                       product.title,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        fontSize: 16,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       "₦ ${product.price.toStringAsFixed(2)}",
                       style: const TextStyle(
                         color: Colors.orange,
-                        fontSize: 18,
+                        fontSize: 16,
                       ),
                     ),
                   ],
