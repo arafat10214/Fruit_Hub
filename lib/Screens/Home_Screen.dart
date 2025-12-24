@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fruits_ecommerce_app/Data_Storage/auth_data.dart';
 import 'package:fruits_ecommerce_app/Provider/User_provider.dart';
 import 'package:fruits_ecommerce_app/Screens/FoodDetails.dart';
+import 'package:fruits_ecommerce_app/Screens/Login_screen.dart';
 import 'package:fruits_ecommerce_app/Screens/basket_screen.dart';
 import 'package:fruits_ecommerce_app/Screens/favorite_screen.dart';
 import 'package:fruits_ecommerce_app/Wigets/NonRecommended.dart';
@@ -18,6 +20,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>(); 
+  
   TextEditingController searchController = TextEditingController();
   List<Product> filteredProducts = [];
 
@@ -109,6 +113,78 @@ class _HomeScreenState extends State<HomeScreen> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+        key: _scaffoldKey,
+      /// ☰ Side Menu Drawer
+      drawer: Drawer(
+        child: Column(
+          children: [
+            /// Top Header (Name + Email)
+            UserAccountsDrawerHeader(
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFA451),
+              ),
+              accountName: Text(
+                AuthData.firstName ?? "Guest User",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              accountEmail: Text(
+                AuthData.email ?? "No email",
+              ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(
+                  (AuthData.firstName != null &&
+                          AuthData.firstName!.isNotEmpty)
+                      ? AuthData.firstName![0].toUpperCase()
+                      : "U",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFFFA451),
+                  ),
+                ),
+              ),
+            ),
+
+            /// Menu Items
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text("Home"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: const Text("My Orders"),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> BasketScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.favorite),
+              title: const Text("Favorites"),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> FavoriteScreen()));
+              },
+            ),
+            const Spacer(),
+
+            /// Logout
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text("Logout"),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginScreen())); // back to login
+              },
+            ),
+          ],
+        ),
+      ),
+
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -119,7 +195,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
                       icon: Icon(Icons.sort, size: 40),
                     ),
                     Row(

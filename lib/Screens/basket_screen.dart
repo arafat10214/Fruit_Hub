@@ -8,6 +8,16 @@ class BasketScreen extends StatefulWidget {
 }
 
 class _BasketScreenState extends State<BasketScreen> {
+  final _checkoutFormKey = GlobalKey<FormState>();
+  final _cardFormKey = GlobalKey<FormState>();
+
+  final cardNameController = TextEditingController();
+  final cardNumberController = TextEditingController();
+  final cardDateController = TextEditingController();
+  final cardCvvController = TextEditingController();
+
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,18 +26,15 @@ class _BasketScreenState extends State<BasketScreen> {
         child: Column(
           children: [
             Padding(
-              padding:  EdgeInsets.all(12),
+              padding: EdgeInsets.all(12),
               child: Align(
                 alignment: Alignment.topLeft,
                 child: ElevatedButton.icon(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon:  Icon(Icons.arrow_back_ios, color: Colors.black),
-                  label:  Text(
-                    "Go back",
-                    style: TextStyle(color: Colors.black),
-                  ),
+                  icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+                  label: Text("Go back", style: TextStyle(color: Colors.black)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
@@ -39,21 +46,21 @@ class _BasketScreenState extends State<BasketScreen> {
               ),
             ),
 
-             SizedBox(height: 20),
-             Text(
-              "Favorite Items",
+            SizedBox(height: 20),
+            Text(
+              "My Basket",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
-             SizedBox(height: 40),
+            SizedBox(height: 40),
 
             Expanded(
               child: Container(
                 width: double.infinity,
-                decoration:  BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
@@ -174,121 +181,145 @@ class _BasketScreenState extends State<BasketScreen> {
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return Container(
-          padding:  EdgeInsets.all(16.0),
-          decoration:  BoxDecoration(
+          padding: EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(25.0),
               topRight: Radius.circular(25.0),
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  width: 40,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-              ),
-
-               Text(
-                'Delivery address',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-               SizedBox(height: 8),
-               TextField(
-                decoration: InputDecoration(
-                  hintText: '10th avenue, Lekki, Lagos State',
-                  filled: true,
-                  fillColor: Color(0xFFF0F0F0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide.none,
+          child: Form(
+            key: _checkoutFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 40,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.black),
+                      onPressed: () => Navigator.pop(context),
+                    ),
                   ),
                 ),
-              ),
-               SizedBox(height: 20),
 
-               Text(
-                'Number we can call',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-               SizedBox(height: 8),
-               TextField(
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  hintText: '09090605708',
-                  filled: true,
-                  fillColor: Color(0xFFF0F0F0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide.none,
-                  ),
+                Text(
+                  'Delivery address',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
-              ),
-              const SizedBox(height: 30),
+                SizedBox(height: 8),
+                TextFormField(
+                  controller: addressController,
+                  decoration: InputDecoration(
+                    hintText: 'Pealse Enter Your Address',
+                    filled: true,
+                    fillColor: Color(0xFFF0F0F0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Delivery address required';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => OderComplete(),
+                Text(
+                  'Number we can call',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                SizedBox(height: 8),
+                TextFormField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    hintText: 'Enter Your Number',
+                    filled: true,
+                    fillColor: Color(0xFFF0F0F0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Phone number required';
+                    }
+                    if (value.length < 11) {
+                      return 'Enter valid phone number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 30),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          if (_checkoutFormKey.currentState!.validate()) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OderComplete(),
+                              ),
+                            );
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 15),
+                          side: BorderSide(color: Color(0xFFFF9800)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding:  EdgeInsets.symmetric(vertical: 15),
-                        side:  BorderSide(color: Color(0xFFFF9800)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          'Pay on delivery',
+                          style: TextStyle(color: Color(0xFFFF9800)),
                         ),
                       ),
-                      child:  Text(
-                        'Pay on delivery',
-                        style: TextStyle(color: Color(0xFFFF9800)),
-                      ),
                     ),
-                  ),
-                   SizedBox(width: 15),
+                    SizedBox(width: 15),
 
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _CradSheet(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFE0F7FA),
-                        foregroundColor: Colors.blue,
-                        padding:  EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side:  BorderSide(color: Colors.blue, width: 2),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_checkoutFormKey.currentState!.validate()) {
+                            _CradSheet(context);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFE0F7FA),
+                          foregroundColor: Colors.blue,
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(color: Colors.blue, width: 2),
+                          ),
+                          elevation: 0,
                         ),
-                        elevation: 0,
+                        child: Text('Pay with card'),
                       ),
-                      child:  Text('Pay with card'),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-               SizedBox(height: 10),
-            ],
+                SizedBox(height: 10),
+              ],
+            ),
           ),
         );
       },
@@ -296,179 +327,143 @@ class _BasketScreenState extends State<BasketScreen> {
   }
 
   // input card details
-  void _CradSheet(BuildContext context) {
+ void _CradSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
+      builder: (_) {
         return Container(
-          padding:  EdgeInsets.all(16.0),
-          decoration:  BoxDecoration(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(25.0),
-              topRight: Radius.circular(25.0),
-            ),
+            borderRadius:
+                BorderRadius.vertical(top: Radius.circular(25)),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  width: 40,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon:  Icon(Icons.close, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-              ),
+          child: Form(
+            key: _cardFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
 
-               Text(
-                'Card Holders Name',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-               SizedBox(height: 8),
-               TextField(
-                decoration: InputDecoration(
-                  hintText: 'Adolphus Chris',
-                  filled: true,
-                  fillColor: Color(0xFFF0F0F0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide.none,
+                Text('Card Holders Name',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                SizedBox(height: 8),
+                TextFormField(
+                  controller: cardNameController,
+                  decoration: InputDecoration(
+                    hintText: 'Adolphus Chris',
+                    filled: true,
+                    fillColor: Color(0xFFF0F0F0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none),
                   ),
+                  validator: (v) =>
+                      v == null || v.isEmpty
+                          ? 'Card holder name required'
+                          : null,
                 ),
-              ),
-               SizedBox(height: 20),
 
-               Text(
-                'Card Number',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-               SizedBox(height: 8),
-               TextField(
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  hintText: '1234 5678 9012 1314',
-                  filled: true,
-                  fillColor: Color(0xFFF0F0F0),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide.none,
+                SizedBox(height: 20),
+                Text('Card Number',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                SizedBox(height: 8),
+                TextFormField(
+                  controller: cardNumberController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    hintText: '1234 5678 9012 1314',
+                    filled: true,
+                    fillColor: Color(0xFFF0F0F0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none),
                   ),
+                  validator: (v) =>
+                      v == null || v.length < 16
+                          ? 'Enter valid card number'
+                          : null,
                 ),
-              ),
-               SizedBox(height: 20),
-              Row(
-                children: <Widget>[
-                                                // Date Input
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                         Text(
-                          'Date',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.black,
-                          ),
+
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: cardDateController,
+                        decoration: InputDecoration(
+                          hintText: 'MM/YY',
+                          filled: true,
+                          fillColor: Color(0xFFF0F0F0),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none),
                         ),
-                         SizedBox(height: 8.0),
-                        TextField(
-                          decoration: InputDecoration(
-                            hintText: '10/30',
-                            filled: true,
-                            fillColor: Color(0xFFF0F0F0),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                      ],
+                        validator: (v) =>
+                            v == null || v.isEmpty
+                                ? 'Expiry date required'
+                                : null,
+                      ),
                     ),
-                  ),
-                   SizedBox(width: 15),
-
-                                                          // CCV Input
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                         Text(
-                          'CCV',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.black,
-                          ),
+                    SizedBox(width: 15),
+                    Expanded(
+                      child: TextFormField(
+                        controller: cardCvvController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: '123',
+                          filled: true,
+                          fillColor: Color(0xFFF0F0F0),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none),
                         ),
-                         SizedBox(height: 8.0),
-                        TextField(
-                          decoration: InputDecoration(
-                            hintText: '123',
-                            filled: true,
-                            fillColor: Color(0xFFF0F0F0),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                      ],
+                        validator: (v) =>
+                            v == null || v.length < 3
+                                ? 'Invalid CVV'
+                                : null,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-               SizedBox(height: 30),
-
-              Container(
-                width: double.infinity, 
-                padding:  EdgeInsets.symmetric(vertical: 20),
-                decoration:  BoxDecoration(
-                  color: Color(0xFFFF9800),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20.0),
-                    topRight: Radius.circular(20.0),
-                  ),
+                  ],
                 ),
-                child: Center(
+
+                SizedBox(height: 30),
+
+                Container(
+                  height: 60,
+                  width: double.infinity,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
                     onPressed: () {
-                     Navigator.push(
+                      if (_cardFormKey.currentState!.validate()) {
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => OderComplete(),
-                          ),
+                              builder: (_) => OderComplete()),
                         );
+                      }
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding:  EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 0,
-                    ),
-                    child:  Text('Complete Order',style: TextStyle(fontWeight: FontWeight.bold),),
+                    child: Text('Complete Order',style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16
+                    ),),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
