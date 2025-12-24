@@ -6,7 +6,6 @@ import 'package:fruits_ecommerce_app/Provider/User_provider.dart';
 import 'package:fruits_ecommerce_app/Screens/FoodDetails.dart';
 import 'package:fruits_ecommerce_app/Screens/My_Basket.dart';
 import 'package:fruits_ecommerce_app/Screens/favorite_screen.dart';
-import 'package:fruits_ecommerce_app/Wigets/NonRecommended.dart';
 import 'package:fruits_ecommerce_app/Wigets/productcard.dart';
 import 'package:fruits_ecommerce_app/Provider/provider.dart';
 import 'package:provider/provider.dart';
@@ -85,6 +84,32 @@ class _HomeScreenState extends State<HomeScreen> {
     filteredProducts = getRecommended();
   }
 
+  // প্রোডাক্ট রিমুভ করার ফাংশন
+  void _removeProduct(int id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Product"),
+        content: const Text("Are you sure you want to remove this item?"),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel")),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                products.removeWhere((p) => p.id == id);
+                filteredProducts = getRecommended();
+              });
+              Navigator.pop(context);
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void filterProducts(String query) {
     setState(() {
       filteredProducts = getRecommended()
@@ -94,12 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // ইমেজ এরর ফিক্স করতে Uri.decodeFull ব্যবহার করা হয়েছে
   Future<void> _pickImage(StateSetter setDialogState) async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setDialogState(() {
-        _webImagePath = pickedFile.path;
+        _webImagePath =
+            kIsWeb ? Uri.decodeFull(pickedFile.path) : pickedFile.path;
         _selectedImage = File(pickedFile.path);
       });
     }
@@ -131,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     controller: priceController,
                     decoration: const InputDecoration(labelText: "Price"),
                     keyboardType: TextInputType.number),
-                const SizedBox(height: 10),
                 SwitchListTile(
                   title: const Text("Is Recommended?",
                       style: TextStyle(fontSize: 14)),
@@ -178,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     (_webImagePath != null || _selectedImage != null)) {
                   setState(() {
                     products.add(Product(
-                      id: products.length + 1,
+                      id: DateTime.now().millisecondsSinceEpoch,
                       title: nameController.text,
                       imageUrl: kIsWeb ? _webImagePath! : _selectedImage!.path,
                       price: double.tryParse(priceController.text) ?? 0.0,
@@ -207,186 +233,237 @@ class _HomeScreenState extends State<HomeScreen> {
       length: 4,
       child: Scaffold(
         key: _scaffoldKey,
+        resizeToAvoidBottomInset: false,
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.orange,
           onPressed: _showAddProductDialog,
           child: const Icon(Icons.add, color: Colors.white),
         ),
-        drawer: Drawer(
-          child: Column(
-            children: [
-              UserAccountsDrawerHeader(
-                decoration: const BoxDecoration(color: Color(0xFFFFA451)),
-                accountName: Text(AuthData.firstName ?? "Guest User",
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                accountEmail: Text(AuthData.email ?? "No email"),
-                currentAccountPicture: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Text(
-                      AuthData.firstName != null
-                          ? AuthData.firstName![0].toUpperCase()
-                          : "U",
-                      style: const TextStyle(
-                          color: Color(0xFFFFA451),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24)),
-                ),
-              ),
-              ListTile(
-                  leading: const Icon(Icons.home),
-                  title: const Text("Home"),
-                  onTap: () => Navigator.pop(context)),
-              ListTile(
-                  leading: const Icon(Icons.shopping_cart),
-                  title: const Text("My Orders"),
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => BasketScreen()))),
-              ListTile(
-                  leading: const Icon(Icons.favorite),
-                  title: const Text("Favorites"),
-                  onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => FavoriteScreen()))),
-              const Spacer(),
-              ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: const Text("Logout"),
-                  onTap: () => Navigator.pop(context)),
-            ],
-          ),
-        ),
+        drawer: _buildDrawer(),
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        onPressed: () =>
-                            _scaffoldKey.currentState?.openDrawer(),
-                        icon: const Icon(Icons.sort, size: 40)),
-                    Row(
-                      children: [
-                        Column(children: [
-                          IconButton(
-                              onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => FavoriteScreen())),
-                              icon: const Icon(Icons.favorite,
-                                  color: Colors.orange, size: 30)),
-                          const Text("Fav")
-                        ]),
-                        const SizedBox(width: 10),
-                        Column(children: [
-                          IconButton(
-                              onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => BasketScreen())),
-                              icon: const Icon(Icons.shopping_basket,
-                                  color: Colors.orange, size: 30)),
-                          const Text("My basket")
-                        ]),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                        "Hello ${userProvider.username}, What fruit salad \ncombo do you want today?",
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold))),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: searchController,
-                        onChanged: filterProducts,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.search),
-                          filled: true,
-                          fillColor: const Color.fromARGB(255, 230, 229, 229),
-                          hintText: "Search for fruit salad combos",
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none),
-                        ),
-                      ),
-                    ),
-                    const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(Icons.tune, size: 40)),
-                  ],
-                ),
-                const SizedBox(height: 26),
-                const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Recommended Combo?",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold))),
-                const SizedBox(height: 20),
-                Flexible(
-                  child: GridView.builder(
-                    itemCount: filteredProducts.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                            childAspectRatio: 3 / 4),
-                    itemBuilder: (context, index) {
-                      final product = filteredProducts[index];
-                      return GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    FoodDetails(product: product))),
-                        child: ProductCard(
-                          product: product,
-                          isFavorite: favoriteProvider.isFavorite(product),
-                          onFavoritePressed: () =>
-                              favoriteProvider.toggleFavorite(product),
-                        ),
-                      );
-                    },
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTopBar(),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Hello ${userProvider.username},\nWhat fruit salad combo do you want today?",
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                ),
-                const SizedBox(height: 10),
-                const TabBar(
-                  isScrollable: true,
-                  labelColor: Colors.orange,
-                  unselectedLabelColor: Colors.black,
-                  indicatorColor: Colors.orange,
-                  tabs: [
-                    Tab(text: "Hottest"),
-                    Tab(text: "Popular"),
-                    Tab(text: "New combo"),
-                    Tab(text: "Top")
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      NonRecommendedGrid(products: getNonRecommended()),
-                      NonRecommendedGrid(products: getRecommended()),
-                      NonRecommendedGrid(products: getNonRecommended()),
-                      NonRecommendedGrid(products: getNonRecommended()),
+                  const SizedBox(height: 20),
+                  _buildSearchBar(),
+                  const SizedBox(height: 30),
+                  const Text("Recommended Combo",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 15),
+
+                  // Recommended Combo (Horizontal Scroll)
+                  SizedBox(
+                    height: 240,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: filteredProducts.length,
+                      itemBuilder: (context, index) {
+                        final product = filteredProducts[index];
+                        return Container(
+                          width: 160,
+                          margin: const EdgeInsets.only(right: 15),
+                          child: GestureDetector(
+                            onLongPress: () => _removeProduct(product.id),
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        FoodDetails(product: product))),
+                            child: ProductCard(
+                              product: product,
+                              isFavorite: favoriteProvider.isFavorite(product),
+                              onFavoritePressed: () =>
+                                  favoriteProvider.toggleFavorite(product),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
+                  const TabBar(
+                    isScrollable: true,
+                    labelColor: Colors.orange,
+                    unselectedLabelColor: Colors.black,
+                    indicatorColor: Colors.orange,
+                    tabs: [
+                      Tab(text: "Hottest"),
+                      Tab(text: "Popular"),
+                      Tab(text: "New combo"),
+                      Tab(text: "Top")
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 15),
+
+                  // Tab কন্টেন্ট সেকশন (হাইট কমানো হয়েছে)
+                  SizedBox(
+                    height: 260, // আপনার ছবির মতো ছোট কন্টেইনার
+                    child: TabBarView(
+                      children: [
+                        _buildTabGrid(getNonRecommended()),
+                        _buildTabGrid(getRecommended()),
+                        _buildTabGrid(getNonRecommended()),
+                        _buildTabGrid(getNonRecommended()),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // ট্যাব এর ভেতর গ্রিড এবং ক্লিক ইভেন্ট হ্যান্ডল করার ফাংশন
+  Widget _buildTabGrid(List<Product> tabProducts) {
+  final favoriteProvider = Provider.of<FavoriteProvider>(context, listen: false);
+  
+  return ListView.builder(
+    scrollDirection: Axis.horizontal, // পাশাপাশি স্ক্রল করার জন্য
+    itemCount: tabProducts.length,
+    itemBuilder: (context, index) {
+      final product = tabProducts[index];
+      return Container(
+        width: 160, // প্রতিটি কার্ডের প্রস্থ
+        margin: const EdgeInsets.only(right: 15),
+        child: GestureDetector(
+          onTap: () => Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => FoodDetails(product: product))
+          ),
+          onLongPress: () => _removeProduct(product.id),
+          child: ProductCard(
+            product: product,
+            isFavorite: favoriteProvider.isFavorite(product),
+            onFavoritePressed: () => favoriteProvider.toggleFavorite(product),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+  Widget _buildTopBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+            icon: const Icon(Icons.sort, size: 40)),
+        Row(
+          children: [
+            _topIcon(
+                Icons.favorite,
+                "Fav",
+                () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => FavoriteScreen()))),
+            const SizedBox(width: 15),
+            _topIcon(
+                Icons.shopping_basket,
+                "My basket",
+                () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => BasketScreen()))),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _topIcon(IconData icon, String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(children: [
+        Icon(icon, color: Colors.orange, size: 30),
+        Text(label, style: const TextStyle(fontSize: 12))
+      ]),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: searchController,
+            onChanged: filterProducts,
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: const Color(0xFFF3F4F9),
+              hintText: "Search for fruit salad combos",
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F9),
+              borderRadius: BorderRadius.circular(15)),
+          child: const Icon(Icons.tune, color: Colors.black54),
+        )
+      ],
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: Column(
+        children: [
+          UserAccountsDrawerHeader(
+            decoration: const BoxDecoration(color: Color(0xFFFFA451)),
+            accountName: Text(AuthData.firstName ?? "User",
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+            accountEmail: Text(AuthData.email ?? ""),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Text(
+                  AuthData.firstName != null
+                      ? AuthData.firstName![0].toUpperCase()
+                      : "U",
+                  style: const TextStyle(
+                      color: Color(0xFFFFA451),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24)),
+            ),
+          ),
+          ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text("Home"),
+              onTap: () => Navigator.pop(context)),
+          ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: const Text("My Orders"),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => BasketScreen()))),
+          ListTile(
+              leading: const Icon(Icons.favorite),
+              title: const Text("Favorites"),
+              onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => FavoriteScreen()))),
+          const Spacer(),
+          ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text("Logout"),
+              onTap: () => Navigator.pop(context)),
+        ],
       ),
     );
   }
