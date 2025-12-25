@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fruits_ecommerce_app/Data_Storage/auth_data.dart';
 import 'package:fruits_ecommerce_app/Provider/User_provider.dart';
 import 'package:fruits_ecommerce_app/Screens/FoodDetails.dart';
-import 'package:fruits_ecommerce_app/Screens/My_Basket.dart';
+import 'package:fruits_ecommerce_app/Screens/basket_screen.dart';
 import 'package:fruits_ecommerce_app/Screens/favorite_screen.dart';
 import 'package:fruits_ecommerce_app/Wigets/productcard.dart';
 import 'package:fruits_ecommerce_app/Provider/provider.dart';
