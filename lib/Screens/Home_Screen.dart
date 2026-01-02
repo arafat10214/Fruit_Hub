@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
     filteredProducts = getRecommended();
   }
 
-  // প্রোডাক্ট রিমুভ করার ফাংশন
+  // Product Remove Function
   void _removeProduct(int id) {
     showDialog(
       context: context,
@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // ইমেজ এরর ফিক্স করতে Uri.decodeFull ব্যবহার করা হয়েছে
+  // Image error fix using Uri.decodeFull
   Future<void> _pickImage(StateSetter setDialogState) async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -307,9 +307,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 15),
 
-                  // Tab কন্টেন্ট সেকশন (হাইট কমানো হয়েছে)
+                  // TabBarView with Horizontal Scroll Grids
                   SizedBox(
-                    height: 260, // আপনার ছবির মতো ছোট কন্টেইনার
+                    height: 240, 
                     child: TabBarView(
                       children: [
                         _buildTabGrid(getNonRecommended()),
@@ -328,17 +328,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ট্যাব এর ভেতর গ্রিড এবং ক্লিক ইভেন্ট হ্যান্ডল করার ফাংশন
+  // TabBarView with Horizontal Scroll Grids
   Widget _buildTabGrid(List<Product> tabProducts) {
   final favoriteProvider = Provider.of<FavoriteProvider>(context, listen: false);
   
   return ListView.builder(
-    scrollDirection: Axis.horizontal, // পাশাপাশি স্ক্রল করার জন্য
+    scrollDirection: Axis.horizontal, 
     itemCount: tabProducts.length,
     itemBuilder: (context, index) {
       final product = tabProducts[index];
       return Container(
-        width: 160, // প্রতিটি কার্ডের প্রস্থ
+        width: 160, 
         margin: const EdgeInsets.only(right: 15),
         child: GestureDetector(
           onTap: () => Navigator.push(
